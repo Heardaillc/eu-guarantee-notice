@@ -18,7 +18,8 @@
     "graphql-codegen": "graphql-codegen",
     "vite": "vite",
     "typecheck": "react-router typegen && tsc --noEmit",
-    "import:eu-notice": "node scripts/import-eu-notice.mjs"
+    "import:eu-notice": "node scripts/import-eu-notice.mjs",
+    "postinstall": "prisma generate"
   },
   "type": "module",
   "engines": {
