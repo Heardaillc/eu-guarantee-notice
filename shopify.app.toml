@@ -1,0 +1,51 @@
+# This file stores configurations for your Shopify app.
+# application_url and redirect URLs are rewritten by `shopify app dev`.
+
+client_id = "ab003a53999283560f7edc3af87f257f"
+name = "EU Guarantee Notice"
+application_url = "https://localhost:3458"
+embedded = true
+
+[build]
+include_config_on_deploy = true
+# Let the CLI point the app at the local dev server while `shopify app dev` runs.
+automatically_update_urls_on_dev = true
+dev_store_url = "heard-ai-dev-store.myshopify.com"
+
+[auth]
+redirect_urls = [
+  "https://localhost:3458/auth/callback",
+  "https://localhost:3458/auth/shopify/callback",
+  "https://localhost:3458/api/auth/callback",
+]
+
+[access_scopes]
+# read_products: needed to read product type and tags for the exclusion rules.
+# Shop display settings are stored in the app's own metafield.
+scopes = "read_products"
+
+[webhooks]
+api_version = "2025-10"
+
+  # Handled by: /app/routes/webhooks.app.uninstalled.tsx
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/uninstalled"
+  topics = ["app/uninstalled"]
+
+  # Handled by: /app/routes/webhooks.app.scopes_update.tsx
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+  # Mandatory compliance topics — required before the app can be published.
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/customers/data_request"
+  compliance_topics = ["customers/data_request"]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/customers/redact"
+  compliance_topics = ["customers/redact"]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/shop/redact"
+  compliance_topics = ["shop/redact"]

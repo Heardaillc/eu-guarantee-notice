@@ -1,0 +1,224 @@
+{% comment %}
+  EU legal guarantee notice — Commission Implementing Regulation (EU) 2025/1960.
+  Applies from 27 September 2026.
+
+  The notice artwork is the Commission's official file and is rendered unmodified.
+  Only placement, trigger label and container styling are configurable, because
+  the regulation forbids editing the notice's wording, colours, layout or QR code.
+{% endcomment %}
+
+{%- liquid
+  comment
+    Settings are written by the app as an app-owned metafield ($app:eu_guarantee).
+    The shop-metafield read is a fallback so the block still renders if the app
+    data metafield is unavailable on a given storefront.
+  endcomment
+  assign cfg = app.metafields.eu_guarantee.settings.value
+  if cfg == blank
+    assign cfg = shop.metafields.eu_guarantee.settings.value
+  endif
+
+  assign is_enabled = true
+  if cfg.enabled == false
+    assign is_enabled = false
+  endif
+
+  comment
+    Exclusions: merchants can switch the notice off for products that are not
+    consumer goods covered by the legal guarantee (gift cards, digital goods,
+    services, B2B-only products).
+  endcomment
+  assign is_excluded = false
+
+  if product != blank
+    if product.gift_card?
+      assign is_excluded = true
+    endif
+
+    assign excluded_types = cfg.excluded_types | default: ''
+    if excluded_types != ''
+      assign type_list = excluded_types | downcase | split: ','
+      assign this_type = product.type | downcase | strip
+      for t in type_list
+        assign t_clean = t | strip
+        if t_clean != '' and t_clean == this_type
+          assign is_excluded = true
+        endif
+      endfor
+    endif
+
+    assign excluded_tags = cfg.excluded_tags | default: ''
+    if excluded_tags != ''
+      assign tag_list = excluded_tags | downcase | split: ','
+      for raw_tag in tag_list
+        assign tag_clean = raw_tag | strip
+        if tag_clean != ''
+          for product_tag in product.tags
+            assign product_tag_clean = product_tag | downcase | strip
+            if product_tag_clean == tag_clean
+              assign is_excluded = true
+            endif
+          endfor
+        endif
+      endfor
+    endif
+  endif
+
+  comment
+    Language: the notice must be shown in the language the shopper is browsing in.
+    Falls back to English when the storefront language is outside the EU 24.
+  endcomment
+  assign eu_languages = 'bg,cs,da,de,el,en,es,et,fi,fr,ga,hr,hu,it,lt,lv,mt,nl,pl,pt,ro,sk,sl,sv' | split: ','
+  assign shop_lang = request.locale.iso_code | slice: 0, 2 | downcase
+  assign notice_lang = 'en'
+  for code in eu_languages
+    if code == shop_lang
+      assign notice_lang = code
+    endif
+  endfor
+
+  assign asset_name = 'eu-notice-' | append: notice_lang | append: '.svg'
+  assign notice_src = asset_name | asset_url
+
+  comment
+    Your Europe guarantee page, in the shopper's language.
+  endcomment
+  assign youreurope_url = 'https://europa.eu/youreurope/citizens/consumers/shopping/guarantees-returns/index_' | append: notice_lang | append: '.htm'
+
+  assign trigger_label = block.settings.trigger_label | default: 'Legal guarantee: 2 years'
+  assign block_id = block.id
+-%}
+
+{%- if is_enabled and is_excluded == false -%}
+  <div
+    class="eug-wrap eug-align--{{ block.settings.alignment }}"
+    style="--eug-max-width: {{ block.settings.max_width }}px; --eug-gap: {{ block.settings.spacing }}px;"
+    {{ block.shopify_attributes }}
+  >
+    {%- if block.settings.display_mode == 'always' -%}
+      <figure class="eug-figure">
+        <img
+          class="eug-notice"
+          src="{{ notice_src }}"
+          alt="{{ trigger_label | escape }}"
+          loading="lazy"
+          decoding="async"
+        >
+        <figcaption class="eug-caption">
+          <a href="{{ youreurope_url }}" target="_blank" rel="noopener nofollow">
+            {{ block.settings.link_label | default: 'More about your rights (europa.eu)' }}
+          </a>
+        </figcaption>
+      </figure>
+    {%- else -%}
+      <details class="eug-details" id="eug-{{ block_id }}">
+        <summary class="eug-summary">
+          <span class="eug-badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 3l7 3v5c0 4.2-2.8 7.9-7 9-4.2-1.1-7-4.8-7-9V6l7-3z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          </span>
+          <span class="eug-summary-text">{{ trigger_label }}</span>
+          <span class="eug-chevron" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </span>
+        </summary>
+
+        <div class="eug-panel">
+          <img
+            class="eug-notice"
+            src="{{ notice_src }}"
+            alt="{{ trigger_label | escape }}"
+            loading="lazy"
+            decoding="async"
+          >
+          <p class="eug-caption">
+            <a href="{{ youreurope_url }}" target="_blank" rel="noopener nofollow">
+              {{ block.settings.link_label | default: 'More about your rights (europa.eu)' }}
+            </a>
+          </p>
+        </div>
+      </details>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%}
+    The stylesheet is declared in the schema below, so Shopify loads it once
+    per page rather than once per block.
+  {%- endcomment -%}
+
+  {%- if block.settings.display_mode == 'hover' -%}
+    <script src="{{ 'eu-notice.js' | asset_url }}" defer></script>
+  {%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "EU guarantee notice",
+  "target": "section",
+  "stylesheet": "eu-notice.css",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Shows the official EU legal guarantee notice required from 27 September 2026. The notice artwork is fixed by law and cannot be edited."
+    },
+    {
+      "type": "select",
+      "id": "display_mode",
+      "label": "Display",
+      "options": [
+        { "value": "nested", "label": "Expand on click (recommended)" },
+        { "value": "hover", "label": "Expand on click or hover" },
+        { "value": "always", "label": "Always visible" }
+      ],
+      "default": "nested"
+    },
+    {
+      "type": "text",
+      "id": "trigger_label",
+      "label": "Trigger text",
+      "default": "Legal guarantee: 2 years",
+      "info": "Shown before the notice is expanded. Translate this in your theme's language settings."
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Link text",
+      "default": "More about your rights (europa.eu)"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "start", "label": "Left" },
+        { "value": "center", "label": "Centre" }
+      ],
+      "default": "start"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Maximum width",
+      "min": 240,
+      "max": 720,
+      "step": 20,
+      "unit": "px",
+      "default": 420
+    },
+    {
+      "type": "range",
+      "id": "spacing",
+      "label": "Spacing around",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    }
+  ]
+}
+{% endschema %}

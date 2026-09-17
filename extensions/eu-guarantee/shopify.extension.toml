@@ -1,0 +1,7 @@
+api_version = "2025-10"
+
+[[extensions]]
+type = "theme"
+name = "EU guarantee notice"
+handle = "eu-guarantee"
+uid = "17b1a287-3228-87a1-3c02-af6b8d4b0ad5c32e6c25"

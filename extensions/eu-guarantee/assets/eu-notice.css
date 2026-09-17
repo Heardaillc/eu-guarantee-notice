@@ -1,0 +1,104 @@
+.eug-wrap {
+  margin: var(--eug-gap, 16px) 0;
+  max-width: var(--eug-max-width, 420px);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.eug-align--center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.eug-details {
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.015);
+}
+
+.eug-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.eug-summary::-webkit-details-marker {
+  display: none;
+}
+
+.eug-summary:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+.eug-badge {
+  display: inline-flex;
+  color: #003399; /* EU flag blue — trigger chrome only, not the notice artwork */
+  flex: 0 0 auto;
+}
+
+.eug-summary-text {
+  flex: 1 1 auto;
+  font-weight: 600;
+}
+
+.eug-chevron {
+  display: inline-flex;
+  flex: 0 0 auto;
+  opacity: 0.6;
+  transition: transform 0.15s ease;
+}
+
+.eug-details[open] .eug-chevron {
+  transform: rotate(180deg);
+}
+
+.eug-panel {
+  padding: 0 12px 12px;
+}
+
+.eug-figure {
+  margin: 0;
+}
+
+.eug-notice {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.eug-caption {
+  margin: 8px 0 0;
+  font-size: 0.8125rem;
+}
+
+.eug-caption a {
+  color: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  .eug-details {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .eug-badge {
+    color: #7aa2ff;
+  }
+}
+
+@media print {
+  .eug-details {
+    border: none;
+  }
+
+  .eug-panel {
+    display: block !important;
+  }
+}

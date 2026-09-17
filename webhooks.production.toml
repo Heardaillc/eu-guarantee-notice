@@ -1,0 +1,33 @@
+# Webhook subscriptions for the hosted app.
+#
+# Paste these back under [webhooks] in shopify.app.*.toml once the app runs on a
+# real hosting address. Shopify rejects localhost URIs, so they are left out
+# while developing with `--use-localhost`.
+#
+# The three compliance topics are required before the App Store will review the
+# app, so this file exists to make sure they come back.
+
+  # Handled by: /app/routes/webhooks.app.uninstalled.tsx
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/uninstalled"
+  topics = ["app/uninstalled"]
+
+  # Handled by: /app/routes/webhooks.app.scopes_update.tsx
+  [[webhooks.subscriptions]]
+  topics = ["app/scopes_update"]
+  uri = "/webhooks/app/scopes_update"
+
+  # Handled by: /app/routes/webhooks.customers.data_request.tsx
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/customers/data_request"
+  compliance_topics = ["customers/data_request"]
+
+  # Handled by: /app/routes/webhooks.customers.redact.tsx
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/customers/redact"
+  compliance_topics = ["customers/redact"]
+
+  # Handled by: /app/routes/webhooks.shop.redact.tsx
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/shop/redact"
+  compliance_topics = ["shop/redact"]
