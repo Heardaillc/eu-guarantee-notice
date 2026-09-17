@@ -1,14 +1,13 @@
-# Configuration for the app the CLI created (EU Guarantee Notice HAI).
-# `shopify app dev` rewrites application_url and the redirect URLs while it runs.
+# Configuration for the hosted app (EU Guarantee Notice HAI).
 
 client_id = "635708be3791da865605a329fcbe6cf6"
 name = "EU Guarantee Notice HAI"
-application_url = "https://localhost:3458"
+application_url = "https://eu-guarantee-notice.onrender.com"
 embedded = true
 
 [build]
 include_config_on_deploy = true
-automatically_update_urls_on_dev = true
+automatically_update_urls_on_dev = false
 dev_store_url = "heard-ai-dev-store.myshopify.com"
 
 [access_scopes]
@@ -18,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://localhost:3458/auth/callback",
-  "https://localhost:3458/auth/shopify/callback",
-  "https://localhost:3458/api/auth/callback",
+  "https://eu-guarantee-notice.onrender.com/auth/callback",
+  "https://eu-guarantee-notice.onrender.com/auth/shopify/callback",
+  "https://eu-guarantee-notice.onrender.com/api/auth/callback",
 ]
 
 [webhooks]
@@ -36,15 +35,17 @@ api_version = "2026-10"
   topics = ["app/scopes_update"]
   uri = "/webhooks/app/scopes_update"
 
-  # Mandatory compliance topics — required before the app can be published.
+  # Handled by: /app/routes/webhooks.customers.data_request.tsx
   [[webhooks.subscriptions]]
   uri = "/webhooks/customers/data_request"
   compliance_topics = ["customers/data_request"]
 
+  # Handled by: /app/routes/webhooks.customers.redact.tsx
   [[webhooks.subscriptions]]
   uri = "/webhooks/customers/redact"
   compliance_topics = ["customers/redact"]
 
+  # Handled by: /app/routes/webhooks.shop.redact.tsx
   [[webhooks.subscriptions]]
   uri = "/webhooks/shop/redact"
   compliance_topics = ["shop/redact"]
